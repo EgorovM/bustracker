@@ -25,7 +25,7 @@
     <div id="map"></div>
     <script>
         function getBuses(){
-            xhr.open('GET', '192.168.43.28:8000/getInfo', false);
+            xhr.open('GET', 'egorovm.pythonanywhere.com/getInfo', false);
             xhr.send();
 
             if (xhr.status != 200) {
