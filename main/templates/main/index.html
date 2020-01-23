@@ -1,3 +1,4 @@
+{% load static %}
 <!DOCTYPE html>
 <html>
     <head>
@@ -9,19 +10,24 @@
 
         <style>
         	body { margin: 0; padding: 0; }
-        	#map { position: absolute; top: 0; bottom: 0; width: 100%; };
-            .marker {
-                background-image: url('https://www.google.com/url?sa=i&rct=j&q=&esrc=s&source=images&cd=&ved=2ahUKEwjx6tSAg5rnAhUCqIsKHcS0CwIQjRx6BAgBEAQ&url=https%3A%2F%2Fwww.iconfinder.com%2Ficons%2F134058%2Fbus_icon&psig=AOvVaw0PSnezWglS_1YAbXqjW0tY&ust=1579879246961579');
+        	#map { position: absolute; top: 0; bottom: 0; width: 100%; z-index: -1}
+            #marker {
+                background-image: url('/media/bus.png');
                 background-size: cover;
                 width: 50px;
                 height: 50px;
                 border-radius: 50%;
                 cursor: pointer;
             }
+
+            .mapboxgl-popup {
+                max-width: 200px;
+            }
         </style>
 
     </head>
     <body>
+    <h2 style="text-align: center"> BusTracker Нюрба </h2>
     <div id="map"></div>
     <script>
         function getBuses(){
@@ -40,7 +46,13 @@
         }
 
 
-    	mapboxgl.accessToken = 'pk.eyJ1IjoiZWdvcm92bSIsImEiOiJjanhic2F1ZDUwMTdvNDJ0bHMxOGg5NWthIn0.QL2wIcgAJIBNIz2gbpuLVQ';
+        var bounds = [
+            [118.260269, 63.244591],// Southwest coordinates
+            [118.463925, 63.326944], // Northeast coordinates
+        ];
+
+        mapboxgl.accessToken = 'pk.eyJ1IjoiZWdvcm92bSIsImEiOiJjanhic2F1ZDUwMTdvNDJ0bHMxOGg5NWthIn0.QL2wIcgAJIBNIz2gbpuLVQ';
+
         var map;
         var xhr = new XMLHttpRequest();
 
@@ -49,29 +61,38 @@
             navigator.geolocation.getCurrentPosition(function(position) {
                     map = new mapboxgl.Map({
                     container: 'map',
-                    style: 'mapbox://styles/mapbox/light-v10',
+                    style: 'mapbox://styles/mapbox/streets-v11',
                     zoom: 12,
-                    center: [position.coords.latitude, position.coords.longitude]
+                    center: [position.coords.latitude, position.coords.longitude],
+                    //maxBounds: bounds
                 });
             });
         }
         finally{
             map = new mapboxgl.Map({
                 container: 'map',
-                style: 'mapbox://styles/mapbox/light-v10',
-                zoom: 12,
-                center: [118.3447875, 63.2829217]
+                style: 'mapbox://styles/mapbox/streets-v11',
+                zoom: 4,
+                center: [118.3447875, 63.2829217],
+                maxBounds: bounds
             });
         }
 
-        var canvas = map.getCanvasContainer();
-
         var buses = getBuses();
-        var market = [];
-
+        var markets = [];
 
         for(var i = 0; i < buses.length; i++){
-            market.push(new mapboxgl.Marker());
+            var el = document.createElement('div');
+            el.id = "marker";
+
+            markets.push(new mapboxgl.Marker(el));
+
+            var popup = new mapboxgl.Popup({ offset: 25 }).setText(
+                'Construction on the Washington Monument began in 1848.'
+            );
+
+            markets[i].setPopup(popup);
+
         }
 
         var bus = new mapboxgl.Marker();
@@ -86,17 +107,15 @@
             })
         );
 
-
-
         function animateBuses(timestamp) {
-            buses = getBuses()
+            buses = getBuses();
 
             var radius = 20;
 
             // Update the data to a new position based on the animation timestamp. The
             // divisor in the expression `timestamp / 1000` controls the animation speed.
 
-            market.forEach((market, i) => {
+            markets.forEach((market, i) => {
                 market.setLngLat([
                     buses[i].longitude,
                     buses[i].latitude
@@ -105,10 +124,8 @@
                 market.addTo(map);
             });
 
-
-
             // Request the next frame of the animation.
-            setTimeout(requestAnimationFrame(animateBuses), 2000);
+            setTimeout(requestAnimationFrame(animateBuses), 5000);
         }
 
         requestAnimationFrame(animateBuses);
