@@ -25,7 +25,7 @@
     <div id="map"></div>
     <script>
         function getBuses(){
-            xhr.open('GET', 'egorovm.pythonanywhere.com/getInfo', false);
+            xhr.open('GET', 'http://egorovm.pythonanywhere.com/getInfo', false);
             xhr.send();
 
             if (xhr.status != 200) {
@@ -69,11 +69,9 @@
         var buses = getBuses();
         var market = [];
 
-        var el = document.createElement('div');
-        el.className = 'marker';
 
         for(var i = 0; i < buses.length; i++){
-            market.push(new mapboxgl.Marker(el));
+            market.push(new mapboxgl.Marker());
         }
 
         var bus = new mapboxgl.Marker();
