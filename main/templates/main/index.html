@@ -25,7 +25,7 @@
             .vert{
                 background-image: url('/media/busVert.png');
             }
-            .marker .hidden{
+            .hidden{
                 display: none;
             }
             .mapboxgl-popup {
@@ -105,7 +105,7 @@
     </p>
     <p style = "margin-left: 5px">Вертолетка:
         <label class="switch">
-            <input type="checkbox" id = "vertolet" onclick="switchClick(this)" checked="checked">
+            <input type="checkbox" id = "vert" onclick="switchClick(this)" checked="checked">
             <span class="slider round"></span>
         </label>
     </p>
@@ -117,7 +117,7 @@
             });
         }
         function getBuses(){
-            xhr.open('GET', 'https://egorovm.pythonanywhere.com/getInfo', false);
+            xhr.open('GET', 'http:/127.0.0.1:8000/getInfo', false);
             xhr.send();
 
             if (xhr.status != 200) {
@@ -172,13 +172,14 @@
         for(var i = 0; i < buses.length; i++){
             var el = document.createElement('div');
             el.classList.add("marker");
-            el.classList.add("city");
+            el.classList.add(buses[i].type);
 
             markets.push(new mapboxgl.Marker(el));
 
-            var popup = new mapboxgl.Popup({ offset: 25 }).setText(
-                'Водитель: ' + buses[i].driver_name + '\n' +
-                'Номер автобуса: ' + buses[i].bus_number
+            var popup = new mapboxgl.Popup({ offset: 25 }).setHTML(
+                '<p>Водитель: ' + buses[i].driver_name + '</p>' +
+                '<p>Номер автобуса: ' + buses[i].bus_number + '</p>' +
+                '<p>Маршрут: ' + buses[i].route + '</p>'
             );
 
             markets[i].setPopup(popup);
